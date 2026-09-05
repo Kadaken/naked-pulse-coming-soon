@@ -264,48 +264,26 @@
   </button>
 
   <script>
-    const SUPABASE_URL     = "https://example.invalid";
-    const SUPABASE_ANON_KEY = "[removed-defunct-client-key]";
-
-    async function submitEmail(email) {
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
-        method: "POST",
-        headers: {
-          "apikey": SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-          "Content-Type": "application/json",
-          "Prefer": "return=minimal"
-        },
-        body: JSON.stringify({ email })
-      });
-      if (!r.ok && r.status !== 409) throw new Error(await r.text());
+    function requestNotification(email) {
+      const subject = encodeURIComponent("Naked Pulse updates");
+      const body = encodeURIComponent(`Please notify me at ${email} when Naked Pulse is available.`);
+      window.location.href = `mailto:support@kadaken.com?subject=${subject}&body=${body}`;
     }
 
     const emailInput = document.getElementById("email-input");
     const submitBtn  = document.getElementById("submit-btn");
     const formMsg    = document.getElementById("form-msg");
 
-    submitBtn.addEventListener("click", async () => {
+    submitBtn.addEventListener("click", () => {
       const email = emailInput.value.trim();
       if (!email || !emailInput.checkValidity()) {
         formMsg.textContent = "Please enter a valid email.";
         formMsg.className = "form-message error";
         return;
       }
-      submitBtn.disabled = true;
-      formMsg.textContent = "";
+      formMsg.textContent = "Opening your email app — send the prepared message to join the update list.";
       formMsg.className = "form-message";
-      try {
-        await submitEmail(email);
-        formMsg.textContent = "Thanks — we'll be in touch.";
-        formMsg.className = "form-message";
-        emailInput.value = "";
-      } catch (err) {
-        console.error(err);
-        formMsg.textContent = "Something went wrong. Please try again.";
-        formMsg.className = "form-message error";
-        submitBtn.disabled = false;
-      }
+      requestNotification(email);
     });
 
     emailInput.addEventListener("keydown", (e) => {
